@@ -22,9 +22,6 @@ export default function TopContactBanner() {
               <Link href="/social/facebook" className="hover:text-sky-200 transition-colors">
                 <Facebook className="h-4 w-4" />
               </Link>
-              <Link href="/social/twitter" className="hover:text-sky-200 transition-colors">
-                <Twitter className="h-4 w-4" />
-              </Link>
               <Link
                 href="https://www.instagram.com/skytoursofficial/profilecard/?igsh=MXdwNXo3dTQ3MDc5ag=="
                 className="hover:text-sky-200 transition-colors"
