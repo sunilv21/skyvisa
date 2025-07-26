@@ -1,364 +1,250 @@
 "use client"
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react"
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Toaster } from "@/components/ui/toaster"
-import { useToast } from "@/components/ui/use-toast"
-import { ArrowRight } from "lucide-react"
-import Link from "next/link"
+import { Phone, Mail, MapPin, HeadphonesIcon, ArrowRight } from "lucide-react"
 
-export default function GetStartedPage() {
-  const { toast } = useToast()
-
-  const [form, setForm] = useState({
-    country: "",
-    destination: "",
-    purpose: "",
-    travelDate: "",
-    duration: "",
-    fullName: "",
+export default function ContactSection() {
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
     email: "",
     phone: "",
-    additional: "",
-    agree: false,
-    adults: "1",
-    minors: "0",
-    infants: "0",
+    subject: "",
+    message: "",
   })
-  const [loading, setLoading] = useState(false)
+
   const [success, setSuccess] = useState("")
   const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [showPopup, setShowPopup] = useState(false)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type, checked } = e.target
-    setForm(prev => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }))
+  // Show popup when success changes
+  useEffect(() => {
+    if (success) {
+      setShowPopup(true)
+      const timer = setTimeout(() => setShowPopup(false), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [success])
+
+  const handleChange = (e: any) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault()
     setLoading(true)
-    setSuccess("")
     setError("")
-
-    if (!form.country || !form.destination || !form.purpose || !form.travelDate || !form.fullName || !form.email || !form.phone || !form.agree) {
-      setError("Please fill all required fields and agree to the terms.")
-      setLoading(false)
-      return
-    }
+    setSuccess("")
 
     try {
-      const res = await fetch("/api/get-started", {
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(formData),
       })
+
+      const result = await res.json()
 
       if (res.ok) {
-        setSuccess("Application submitted successfully!")
-        toast({
-          title: "Success!",
-          description: "Your visa application was submitted successfully.",
-        })
-        setForm({
-          country: "",
-          destination: "",
-          purpose: "",
-          travelDate: "",
-          duration: "",
-          fullName: "",
+        setSuccess("Message sent successfully!")
+        setFormData({
+          firstName: "",
+          lastName: "",
           email: "",
           phone: "",
-          additional: "",
-          agree: false,
-          adults: "1",
-          minors: "0",
-          infants: "0",
+          subject: "",
+          message: "",
         })
       } else {
-        setError("Failed to submit application.")
-        toast({
-          title: "Submission Failed",
-          description: "Please try again later.",
-          variant: "destructive",
-        })
+        setError(result.error || "Something went wrong")
       }
-    } catch {
-      setError("Failed to submit application.")
-      toast({
-        title: "Network Error",
-        description: "Unable to reach the server. Try again later.",
-        variant: "destructive",
-      })
+    } catch (err) {
+      setError("Failed to submit form. Please try again.")
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Toaster />
+    <section id="contact" className="py-20 bg-gradient-to-br from-gray-50 to-sky-50">
+      {/* Popup Notification */}
+      {showPopup && (
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg transition-all">
+          {success}
+       </div>
+      )}
 
-      {/* Hero Section */}
-      <section className="py-10 bg-gradient-to-br from-blue-50 to-purple-50">
-        <div className="container mx-auto px-4 lg:px-6 text-center space-y-6">
-          <h1 className="text-4xl lg:text-6xl font-bold text-gray-900">
-            Start Your{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Visa Journey
-            </span>
-          </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Begin your visa application. Our expert team will guide you through every stage.
+      <div className="container mx-auto px-4 lg:px-6">
+        <div className="text-center space-y-6 mb-16">
+          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900">Ready to Start Your Journey?</h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Have questions? Our visa experts are here to help you 24/7
           </p>
         </div>
-      </section>
+        <div className="grid lg:grid-cols-2 gap-12">
+          
+          {/* Contact Cards */}
+          <div className="space-y-8">
+            {/* Phone */}
+            <div className="flex flex-col md:flex-row gap-4">
+                <ContactCard
+                  icon={<Phone className="h-6 w-6 text-sky-600" />}
+                  title="Phone Support"
+                  details={[
+                    "+91 7471137339",
+                    "Mon-Sat 10AM-6PM IST",
+                    "Average wait time: 10 Minutes",
+                  ]}
+                  buttonText="Call Now"
+                  buttonLink="tel:+917471137339"
+                  bg="sky"
+                />
+                <ContactCard
+                  icon={<Phone className="h-6 w-6 text-sky-600" />}
+                  title="Phone Support"
+                  details={[
+                    "+91 8827 222177",
+                    "Mon-Sat 10AM-6PM IST",
+                    "Average wait time: 10 Minutes",
+                  ]}
+                  buttonText="Call Now"
+                  buttonLink="tel:+918827222177"
+                  bg="sky"
+                />
+              </div>
 
-      {/* Quick Start Form */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4 lg:px-6">
-          <Card className="max-w-4xl mx-auto shadow-2xl">
-            <CardHeader className="text-center pb-8">
-              <CardTitle className="text-3xl">Quick Application Start</CardTitle>
-              <CardDescription className="text-lg">
-                Tell us about your travel plans and we'll get you started immediately
+
+            {/* Email */}
+            <ContactCard
+              icon={<Mail className="h-6 w-6 text-green-600" />}
+              title="Email Support"
+              details={[
+                "info@skyvisa.in",
+                "24/7 response within 2 hours",
+                "Priority support for urgent cases",
+              ]}
+              buttonText="Send Email"
+              buttonLink="mailto:info@skyvisa.in"
+              bg="green"
+            />
+
+            {/* Address */}
+            <ContactCard
+              icon={<MapPin className="h-6 w-6 text-cyan-600" />}
+              title="Office Address"
+              details={[
+                "282, Orbit Mall, AB Rd, Scheme 54 PU4",
+                "Indore, Madhya Pradesh - 452010",
+                "Walk-in consultations available",
+              ]}
+              buttonText="Get Directions"
+              buttonLink="https://maps.app.goo.gl/dj6g9LPcrZsRw8Cm8"
+              bg="cyan"
+            />
+
+            {/* WhatsApp */}
+            <ContactCard
+              icon={<HeadphonesIcon className="h-6 w-6 text-orange-600" />}
+              title="Chat Support"
+              details={[
+                "Available on WhatsApp",
+                "Responses in 30 min",
+              ]}
+              buttonText="Start WhatsApp Chat"
+              buttonLink="https://wa.me/917471137339"
+              bg="green"
+            />
+          </div>
+
+          {/* Contact Form */}
+          <Card className="shadow-2xl border-0 bg-white">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-2xl">Send us a message</CardTitle>
+              <CardDescription className="text-base">
+                Fill out the form and we'll get back to you within 2 hours
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-8">
-              <form onSubmit={handleSubmit} className="space-y-8">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-gray-700">Your Country *</label>
-                    <select
-                      name="country"
-                      value={form.country}
-                      onChange={handleChange}
-                      required
-                      className="w-full h-12 px-4 border-2 border-input rounded-lg focus:border-blue-500 focus:outline-none"
-                    >
-                      <option value="">Select your country of residence</option>
-                      <optgroup label="Popular Countries">
-                        <option value="us">United States</option>
-                        <option value="uk">United Kingdom</option>
-                        <option value="ca">Canada</option>
-                        <option value="au">Australia</option>
-                        <option value="in">India</option>
-                        <option value="cn">China</option>
-                        <option value="jp">Japan</option>
-                        <option value="de">Germany</option>
-                        <option value="fr">France</option>
-                        <option value="ae">United Arab Emirates</option>
-                        <option value="ot">Other</option>
-                      </optgroup>
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-gray-700">Destination Country *</label>
-                    <select
-                      name="destination"
-                      value={form.destination}
-                      onChange={handleChange}
-                      required
-                      className="w-full h-12 px-4 border-2 border-input rounded-lg focus:border-blue-500 focus:outline-none"
-                    >
-                      <option value="">Where do you want to travel?</option>
-                      <optgroup label="Popular Destinations">
-                        <option value="us">United States</option>
-                        <option value="uk">United Kingdom</option>
-                        <option value="schengen">Schengen Area (EU)</option>
-                        <option value="ca">Canada</option>
-                        <option value="au">Australia</option>
-                        <option value="jp">Japan</option>
-                        <option value="sg">Singapore</option>
-                        <option value="ae">United Arab Emirates</option>
-                        <option value="nz">New Zealand</option>
-                        <option value="ch">Switzerland</option>
-                        <option value="hk">Hong Kong</option>
-                        <option value="my">Malaysia</option>
-                        <option value="th">Thailand</option>
-                        <option value="ph">Philippines</option>
-                        <option value="id">Indonesia</option>
-                        <option value="za">South Africa</option>
-                        <option value="br">Brazil</option>
-                        <option value="mx">Mexico</option>  
-                        <option value="kr">South Korea</option>
-                        <option value="ru">Russia</option>
-                        <option value="ot">Other</option>
-                      </optgroup>
-                    </select>
-                  </div>
+            <CardContent className="space-y-6">
+              {success && <p className="text-green-600 text-sm">{success}</p>}
+              {error && <p className="text-red-600 text-sm">{error}</p>}
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <InputField name="firstName" value={formData.firstName} onChange={handleChange} label="First Name *" required />
+                  <InputField name="lastName" value={formData.lastName} onChange={handleChange} label="Last Name *" required />
                 </div>
-
-                <div className="grid md:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-gray-700">Travel Purpose *</label>
-                    <select
-                      name="purpose"
-                      value={form.purpose}
-                      onChange={handleChange}
-                      required
-                      className="w-full h-12 px-4 border-2 border-input rounded-lg focus:border-blue-500 focus:outline-none"
-                    >
-                      <option value="">Select purpose</option>
-                      <optgroup label="Tourism & Leisure">
-                        <option value="tourist">Tourism/Vacation</option>
-                      </optgroup>
-                      <optgroup label="Business & Professional">
-                        <option value="business">Business Meeting</option>
-                        <option value="conference">Conference/Seminar</option>
-                      </optgroup>
-                      <optgroup label="Family & Personal">
-                        <option value="family-visit">Family Visit</option>
-                        <option value="wedding">Wedding/Marriage</option>
-                        <option value="retirement">Retirement/Senior</option>
-                      </optgroup>
-                      <optgroup label="Transit & Transportation">
-                        <option value="transit">Airport Transit</option>
-                        <option value="connecting-flight">Connecting Flight</option>
-                      </optgroup>
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-gray-700">Travel Date *</label>
-                    <Input
-                      name="travelDate"
-                      type="date"
-                      value={form.travelDate}
-                      onChange={handleChange}
-                      required
-                      className="h-12 border-2 focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-gray-700">Duration of Stay</label>
-                    <Input
-                      name="duration"
-                      placeholder="e.g., 2 weeks"
-                      value={form.duration}
-                      onChange={handleChange}
-                      className="h-12 border-2 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-
+                <InputField name="email" value={formData.email} onChange={handleChange} label="Email Address *" type="email" required />
+                <InputField name="phone" value={formData.phone} onChange={handleChange} label="Phone Number *" required />
+                <InputField name="subject" value={formData.subject} onChange={handleChange} label="Subject *" required />
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-gray-700">No. of Persons</label>
-                  <div className="grid md:grid-cols-3 gap-4">
-                    {["adults", "minors", "infants"].map((field, index) => (
-                      <div key={index}>
-                        <label className="block text-xs text-gray-500 mb-1">
-                          {field === "adults" ? "Adults (12+)" : field === "minors" ? "Minors (2–11)" : "Infants (0–1)"}
-                        </label>
-                        <select
-                          name={field}
-                          value={(form as any)[field]}
-                          onChange={handleChange}
-                          className="w-full h-12 px-4 border-2 border-input rounded-lg focus:border-blue-500 focus:outline-none"
-                        >
-                          {[...Array(field === "infants" ? 5 : 10)].map((_, i) => (
-                            <option key={i} value={field === "adults" ? i + 1 : i}>
-                              {field === "adults" ? i + 1 : i}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-gray-700">Full Name *</label>
-                    <Input
-                      name="fullName"
-                      value={form.fullName}
-                      onChange={handleChange}
-                      placeholder="As per passport"
-                      required
-                      className="h-12 border-2 focus:border-blue-500"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-gray-700">Email Address *</label>
-                    <Input
-                      name="email"
-                      type="email"
-                      value={form.email}
-                      onChange={handleChange}
-                      placeholder="john@example.com"
-                      required
-                      className="h-12 border-2 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-gray-700">Phone Number *</label>
-                  <Input
-                    name="phone"
-                    value={form.phone}
-                    onChange={handleChange}
-                    placeholder="+91 (555)00-0000"
-                    required
-                    className="h-12 border-2 focus:border-blue-500"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-gray-700">Additional Information</label>
+                  <label className="text-sm font-semibold text-gray-700">Message *</label>
                   <textarea
-                    name="additional"
-                    value={form.additional}
-                    onChange={handleChange}
-                    className="w-full min-h-[100px] px-4 py-3 border-2 border-input rounded-lg focus:border-blue-500 resize-none"
-                    placeholder="Any specific requirements, previous visa history, or questions..."
-                  />
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <input
-                    type="checkbox"
-                    name="agree"
-                    checked={form.agree}
+                    name="message"
+                    value={formData.message}
                     onChange={handleChange}
                     required
-                    className="mt-1"
+                    className="w-full min-h-[120px] px-4 py-3 border-2 border-input rounded-lg focus:border-sky-500 focus:outline-none resize-none"
+                    placeholder="Tell us about your visa needs, travel dates, and any specific requirements..."
                   />
-                  <p className="text-sm text-gray-600">
-                    I agree to the{" "}
-                    <Link href="/terms-of-service" className="text-blue-600 hover:underline">
-                      Terms of Service
-                    </Link>{" "}
-                    and{" "}
-                    <Link href="/privacy-policy" className="text-blue-600 hover:underline">
-                      Privacy Policy
-                    </Link>
-                  </p>
                 </div>
-
                 <Button
                   type="submit"
-                  disabled={loading}
-                  className="w-full h-14 text-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                  className="w-full h-12 text-lg bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                 >
-                  {loading ? "Submitting..." : "Start My Application"}
-                  <ArrowRight className="ml-3 h-6 w-6" />
+                  {loading ? "Sending..." : "Send Message"}
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-
-                {success && <div className="text-green-600 font-semibold">{success}</div>}
-                {error && <div className="text-red-600 font-semibold">{error}</div>}
               </form>
+              <p className="text-xs text-gray-500 text-center">
+                By submitting this form, you agree to our privacy policy and terms of service.
+              </p>
             </CardContent>
           </Card>
         </div>
-      </section>
+      </div>
+    </section>
+  )
+}
+
+// 🔹 Reusable ContactCard component
+function ContactCard({ icon, title, details, buttonText, buttonLink, bg }: any) {
+  return (
+    <div className="flex items-start space-x-6 p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+      <div className={`w-12 h-12 bg-${bg}-100 rounded-xl flex items-center justify-center flex-shrink-0`}>
+        {icon}
+      </div>
+      <div>
+        <h3 className="font-bold text-xl text-gray-900 mb-2">{title}</h3>
+        {details.map((line: string, i: number) => (
+          <p key={i} className={i === 0 ? "text-" + bg + "-600 font-semibold text-lg" : "text-gray-600"}>
+            {line}
+          </p>
+        ))}
+        <Button size="sm" className={`mt-2 bg-${bg}-600 hover:bg-${bg}-700`} asChild>
+          <a href={buttonLink} target="_blank" rel="noopener noreferrer">{buttonText}</a>
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+// 🔹 Reusable InputField component
+function InputField({ name, value, onChange, label, type = "text", required = false }: any) {
+  return (
+    <div className="space-y-2">
+      <label className="text-sm font-semibold text-gray-700">{label}</label>
+      <Input
+        name={name}
+        type={type}
+        value={value}
+        onChange={onChange}
+        required={required}
+        className="h-12 border-2 focus:border-sky-500"
+      />
     </div>
   )
 }
