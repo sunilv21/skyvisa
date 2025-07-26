@@ -151,6 +151,40 @@ export default function EnhancedFooter() {
               <p className="text-gray-400 text-sm">
                 © 2025 Sky Visa Assistance. All rights reserved. | Licensed Visa Consultancy
               </p>
+              <div className="text-center">
+                  <div className="text-xs text-gray-500"> 
+                    <p>
+                      Website Developed by <span className="text-green-400 font-medium">Sunil Verma</span>
+                    </p>
+                    <p>
+                      Contact Developer:
+                      <a
+                        href="mailto:radsting16@gmail.com"
+                        className="text-green-400 hover:text-green-300 transition-colors ml-1"
+                      >
+                        radsting16@gmail.com
+                      </a>
+                      {" | "}
+                      <a
+                        href="tel:+919826878405"
+                        className="text-green-400 hover:text-green-300 transition-colors"
+                      >
+                        +91 98268 78405
+                      </a>
+                    </p>
+                    <p>
+                      LinkedIn:
+                      <a
+                        href="https://www.linkedin.com/in/sunil-verma-887b27237/" // replace with your actual LinkedIn
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-green-400 hover:text-green-300 transition-colors ml-1"
+                      >
+                      sunil verma
+                      </a>
+                    </p>
+                  </div>
+                </div>
               <div className="flex space-x-6 text-sm">
                 <Link href="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">
                   Privacy
