@@ -15,10 +15,6 @@ export default function TopContactBanner() {
               <Phone className="h-4 w-4" />
               <span>+91 8827 222177</span>
             </div>
-            <div className="flex items-center space-x-2">
-              <Mail className="h-4 w-4" />
-              <span>info@skyvisa.in</span>
-            </div>
           </div>
           <div className="flex items-center space-x-4 mt-2 sm:mt-0">
             <span className="text-xs">Follow us:</span>
